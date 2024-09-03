@@ -52,7 +52,7 @@ P90 <- function(x) quantile(x, probs = 0.90, na.rm = TRUE)
 #| tbl-cap: Descriptive statistics -- ROE by size group
 datasummary(N + Mean + Median + Min + Max + P10 + P25 + P75 + P90 
             ~ roe * (size_group + 1),
-            data = Benchdata, digits = 3)
+            data = Benchdata, fmt = 3)
 ```
 
 ```{r}
@@ -60,7 +60,7 @@ datasummary(N + Mean + Median + Min + Max + P10 + P25 + P75 + P90
 #| tbl-cap: Descriptive statistics -- returns by size group
 datasummary(N + Mean + Median + Min + Max + P10 + P25 + P75 + P90
             ~ return * (size_group + 1),
-            data = Benchdata, digits = 3)
+            data = Benchdata, fmt = 3)
 ```
 
 **Do not export output to Excel!!**
