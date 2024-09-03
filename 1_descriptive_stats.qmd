@@ -1,5 +1,5 @@
 ---
-title: "TA work for Tutorial 1: Descriptive statistics"
+title: "Tutorial 1: Objectives of Financial Reporting, Properties of Earnings and Information Asymmetry"
 author: Ian D. Gow
 date: 2024-09-03
 date-format: "D MMMM YYYY"
@@ -15,29 +15,57 @@ format:
     mathfont: TeX Gyre Pagella Math
 ---
 
+
+The tutorial contains 6 questions all of which you should prepare for.
+
+Q1 involves a discussion of the primary objective of the financial economic business system: to pool and facilitate the allocation of resources/capital to the most productive/profitable use. The question will then begin to provide some insights into benchmarks/base rates for determining high and low profitability. This includes obtaining an understanding of (some) the properties of earnings and the use of  simple data analytics such as a histogram to visualize  and describe the distribution of business variables.      Q2 and Q3 introduces the concepts of information asymmetry to illustrate how this concept can explain a significant amount of economic resource allocation problems and associated outcome/solutions.  Q4 introduces a primary feature of financial reports that can reduce information asymmetry: accruals. Q5 and Q6 begin to introduce possible biases associated with accruals which we will be discussing in subsequent weeks. 
+
+## Question 1. 
+
+Below is the histogram and descriptive statistics for the distribution of ROE and Annual Share Returns for Australian ASX listed firms over the period from 2000 to 2023. 
+Discuss the following.
+
+ a) What do the descriptive statistics and histogram imply about the central tendency and statistical shape of the distribution of ROE and returns?
+ b)	What are the underlying reasons for the shape of the ROE and Return distributions and why do the distributions differ?
+ c)	What are the implications of the nature of the ROE and Return distributions for the use of accounting information to analyse economic performance?
+
+For self-learning you can reproduce  these descriptive statistics and a histogram (and also a [density plot](http://www.sthda.com/english/wiki/ggplot2-density-plot-quick-start-guide-r-software-and-data-visualization)) for both the ROE and return variables for the population of both all firms and firms grouped by size. 
+The dataset `ROEdata2024.csv` contains the annual return on equity (`roe`) and share returns (`return`) for Australian listed firms over the period from 2010 to 2023.
+The firms have been classified into 4 groups based on size as measured by market capitalization from small to large. 
+See the variable `size_group` where the smallest stocks are classified as "Micro" and the largest stocks are classified as "Large".  
+
 ```{r}
 #| warning: false
 library(tidyverse)
 library(modelsummary)
+library(tinytable)
 ```
 
 ```{r}
 ROEData2024 <- read_csv("data/ROEData2024.csv", col_types = "cddd")
 ```
+
 We start by creating a subsample that removes observations that do not meet criteria. 
 Getting percentile rank by size---based on total assets `at`) and forming size groups.
 
 ```{r}
+recode_size <- function(x) {
+  levels <- c("Micro" = "1", "Small" = "2", "Medium" = "3",  "Large" = "4")
+  fct_recode(factor(x), levels = !!!levels)
+}
+
 Benchdata <- 
   ROEData2024 |>
    filter(fyear > 1999, 
           roe>-3 & roe <3, 
           return > -3 & return < 3) |>
   group_by(fyear) |>
-  mutate(size_group = as.factor(ntile(at, 4)),
+  mutate(size_group = recode_size(ntile(at, 4)),
          size_decile = ntile(at, 10),
          large = size_decile > 8) |> 
   ungroup()
+
+fmt_percent <- function(x) sprintf("%.0f", x * 100)
 ```
 
 Producing descriptive stats
@@ -45,25 +73,31 @@ Producing descriptive stats
 ```{r}
 P10 <- function(x) quantile(x, probs = 0.10, na.rm = TRUE)
 P90 <- function(x) quantile(x, probs = 0.90, na.rm = TRUE)
+
+add_header <- function(x, cols) {
+  group_tt(x, j = list("Percentiles" = cols)) |>
+  style_tt(tabularray_inner = "row{1}={halign=c,},")
+}
 ```
 
 ```{r}
-#| label: tbl-roe-group
-#| tbl-cap: Descriptive statistics -- ROE by size group
-datasummary(N + Mean + Median + Min + Max + P10 + P25 + P75 + P90 
-            ~ roe * (size_group + 1),
-            data = Benchdata, fmt = 3)
+#| label: tbl-ret-all
+#| tbl-cap: Descriptive statistics -- ROE and returns (%)
+datasummary((roe + return) 
+            ~ Mean + Max + P10 + P25 + P50 + P75 + P90 + Min + SD,
+            data = Benchdata, fmt = fmt_percent, digits = 0) |>
+  add_header(cols = 4:8)
 ```
 
 ```{r}
 #| label: tbl-ret-group
-#| tbl-cap: Descriptive statistics -- returns by size group
-datasummary(N + Mean + Median + Min + Max + P10 + P25 + P75 + P90
-            ~ return * (size_group + 1),
-            data = Benchdata, fmt = 3)
+#| tbl-cap: Descriptive statistics -- ROE and returns by size group (%)
+datasummary((roe + return) * (size_group + 1) 
+            ~ Mean + Median + Min + P10 + P25 + P50 + P75 + P90 + Max + SD,
+            data = Benchdata, fmt = fmt_percent) |>
+  add_header(cols = 6:10)
 ```
 
-**Do not export output to Excel!!**
 
 ## Produce histogram and density plots
 
@@ -116,9 +150,60 @@ Benchdata |>
 ```
 
 
+## Question 2 
 
+The bid–ask spread (also bid–offer) is the percentage difference between the prices quoted for an immediate sale (ask/offer) and an immediate purchase (bid) for shares. 
+The graph below shows over the period from 2019 to 2021 the five-day moving average of the daily percentage bid-ask spread for two Australian listed companies: Woolworths and Metcash.  
 
+The average bid-ask spread for Woolworths is 0.55% and for Metcash is 1.72%
 
+Using some of the background information to Woolworths and Metcash provided below explain why these bid-ask spreads are different?
+Are there any economic consequences from this difference?
+
+Woolworths is one of Australia's largest supermarket chains. 
+Metcash is a wholesale distributor and supplier to a large number of independently (family owned) retailers such as the IGA stores.
+Metcash thus has arguably a more complicated business model.  
+
+|                                          |                Metcash               |   Woolworths  |
+|:-----------------------------------------|:------------------------------------:|:-------------:|
+| Principal operations                     | Distributor to independent retailers |  Supermarket  |
+| Market capitalization                    |             $4 billion               | $43 billion  |
+| Analyst coverage                         |                  13                  |       18      |
+| Daily trading volume (2022)              |                 $13m                 |     $68m      |
+| Dispersion in analyst revenue forecasts  |                25.45%                |      8.4%     |
+
+## Question 3
+
+Firms are increasingly delisting and being bought out by private equity firms. 
+Use the concepts of information asymmetry to explain this.
+Some PE firms in Australia include EQT, TPG Capital and BGH Capital.
+A recent private equity transaction in Australia is the purchase of Crown Casino by New York based private equity firm Blackstone. 
+See attached article. 
+
+# Question 4
+
+Telstra is Australia’s largest telecommunications company. 
+Obtain [Telstra’s 2023 Annual Report](https://www.telstra.com.au/content/dam/tcom/about-us/investors/pdf-g/TEL-AR-2022-Spreads-FINAL.pdf).
+Compute the level of accruals for Telstra and answer the following questions:
+
+ - Will accruals increase or decrease information asymmetry? 
+ - What type of information asymmetry will be affected? 
+ - What is usually the largest accrual transaction? 
+ - What do you think is the typical magnitude of accruals for a typical company? 
+ - Why does the magnitude of accruals vary significantly across companies?
+
+# Question 5
+
+Review Woolworth's 2023 financial reports.
+Find an example of the use of this report to reduce moral hazard problems. 
+What is implication of this for the statistical properties of the quality of information in financial reports: bias and precision? 
+
+# Question 6 
+
+Find an example of a conservative financial accounting policy in the 2023 financial reports of Telstra.
+In lecture we discussed that lenders may demand conservative financial reports. 
+Would the shareholders of Telstra demand conservative financial reports? 
+Will this type of accounting increase or decrease information asymmetry problems?
 
 
 
