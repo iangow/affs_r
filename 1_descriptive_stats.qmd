@@ -1,0 +1,126 @@
+---
+title: "TA work for Tutorial 1: Descriptive statistics"
+author: Ian D. Gow
+date: 2024-09-03
+date-format: "D MMMM YYYY"
+format: 
+  html: default
+  pdf: 
+    colorlinks: true
+    geometry:
+      - left=2.5cm
+      - right=2.5cm
+    papersize: a4
+    mainfont: TeX Gyre Pagella
+    mathfont: TeX Gyre Pagella Math
+---
+
+```{r}
+#| warning: false
+library(tidyverse)
+library(modelsummary)
+```
+
+```{r}
+ROEData2024 <- read_csv("data/ROEData2024.csv", col_types = "cddd")
+```
+We start by creating a subsample that removes observations that do not meet criteria. 
+Getting percentile rank by size---based on total assets `at`) and forming size groups.
+
+```{r}
+Benchdata <- 
+  ROEData2024 |>
+   filter(fyear > 1999, 
+          roe>-3 & roe <3, 
+          return > -3 & return < 3) |>
+  group_by(fyear) |>
+  mutate(size_group = as.factor(ntile(at, 4)),
+         size_decile = ntile(at, 10),
+         large = size_decile > 8) |> 
+  ungroup()
+```
+
+Producing descriptive stats
+
+```{r}
+P10 <- function(x) quantile(x, probs = 0.10, na.rm = TRUE)
+P90 <- function(x) quantile(x, probs = 0.90, na.rm = TRUE)
+```
+
+```{r}
+#| label: tbl-roe-group
+#| tbl-cap: Descriptive statistics -- ROE by size group
+datasummary(N + Mean + Median + Min + Max + P10 + P25 + P75 + P90 
+            ~ roe * (size_group + 1),
+            data = Benchdata, digits = 3)
+```
+
+```{r}
+#| label: tbl-ret-group
+#| tbl-cap: Descriptive statistics -- returns by size group
+datasummary(N + Mean + Median + Min + Max + P10 + P25 + P75 + P90
+            ~ return * (size_group + 1),
+            data = Benchdata, digits = 3)
+```
+
+**Do not export output to Excel!!**
+
+## Produce histogram and density plots
+
+First define the specific values to be shown on the $x$-axis.
+
+
+```{r}
+breaks <- seq(-3, 4, 0.50)
+my_vector <- c(-1, -0.5, -0.25, 0, 0.25, 0.5, 1)
+```
+
+```{r}
+#| label: fig-hist-ret
+#| fig-cap: Histogram of Annual Returns
+Benchdata |>
+  ggplot(aes(return)) +
+  geom_histogram(binwidth = 0.02) +
+  scale_x_continuous(breaks = breaks) +
+  xlab("Annual Return") + ylab("Frequency")
+```
+
+```{r}
+#| label: fig-hist-roe
+#| fig-cap: Histogram of ROE
+Benchdata |>
+  ggplot(aes(x = roe)) +
+  geom_histogram(binwidth = 0.02) +
+  scale_x_continuous(breaks = breaks) +
+  xlab("ROE") + ylab("Frequency")
+```
+
+```{r}
+#| label: fig-density-roe
+#| fig-cap: Density of ROE
+Benchdata |>
+  ggplot(aes(x = roe)) +
+  geom_density() +
+  scale_x_continuous(breaks = breaks) +
+  xlab("ROE") + ylab("Density")
+```
+
+```{r}
+#| label: fig-density-ret
+#| fig-cap: Density of returns
+Benchdata |>
+  ggplot(aes(x = return)) +
+  geom_density() +
+  scale_x_continuous(breaks = breaks) +
+  xlab("AnnualReturn") + ylab("Density")
+```
+
+
+
+
+
+
+
+
+
+
