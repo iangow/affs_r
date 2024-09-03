@@ -103,7 +103,6 @@ datasummary((roe + return) * (size_group + 1)
 
 First define the specific values to be shown on the $x$-axis.
 
-
 ```{r}
 breaks <- seq(-3, 4, 0.50)
 my_vector <- c(-1, -0.5, -0.25, 0, 0.25, 0.5, 1)
@@ -146,7 +145,7 @@ Benchdata |>
   ggplot(aes(x = return)) +
   geom_density() +
   scale_x_continuous(breaks = breaks) +
-  xlab("AnnualReturn") + ylab("Density")
+  xlab("Annual Return") + ylab("Density")
 ```
 
 
