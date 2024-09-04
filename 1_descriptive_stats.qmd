@@ -68,7 +68,7 @@ Benchdata <-
 fmt_percent <- function(x) sprintf("%.0f", x * 100)
 ```
 
-Producing descriptive stats
+Producing descriptive stats ...
 
 ```{r}
 P10 <- function(x) quantile(x, probs = 0.10, na.rm = TRUE)
@@ -93,9 +93,9 @@ datasummary((roe + return)
 #| label: tbl-ret-group
 #| tbl-cap: Descriptive statistics -- ROE and returns by size group (%)
 datasummary((roe + return) * (size_group + 1) 
-            ~ Mean + Median + Min + P10 + P25 + P50 + P75 + P90 + Max + SD,
+            ~ Mean + Min + P10 + P25 + P50 + P75 + P90 + Max + SD,
             data = Benchdata, fmt = fmt_percent) |>
-  add_header(cols = 6:10)
+  add_header(cols = 5:9)
 ```
 
 
@@ -110,10 +110,24 @@ my_vector <- c(-1, -0.5, -0.25, 0, 0.25, 0.5, 1)
 
 ```{r}
 #| label: fig-hist-ret
-#| fig-cap: Histogram of Annual Returns
+#| fig-cap: Histogram of annual returns
+Benchdata |>
+  ggplot(aes(return)) +
+  geom_histogram(aes(y = after_stat(density)), 
+                 fill = "light blue",
+                 colour = "light blue", binwidth = 0.02) +
+  geom_density(colour = "red") + 
+  scale_x_continuous(breaks = breaks) +
+  xlab("Annual Return") + ylab("Frequency")
+```
+
+```{r}
+#| label: fig-hist-ret-group
+#| fig-cap: Histogram of annual returns by size group
 Benchdata |>
   ggplot(aes(return)) +
   geom_histogram(binwidth = 0.02) +
+  facet_grid(size_group ~ .) +
   scale_x_continuous(breaks = breaks) +
   xlab("Annual Return") + ylab("Frequency")
 ```
@@ -123,31 +137,24 @@ Benchdata |>
 #| fig-cap: Histogram of ROE
 Benchdata |>
   ggplot(aes(x = roe)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 fill = "light blue",
+                 colour = "light blue", binwidth = 0.02) +
+  geom_density(colour = "red") + 
+  scale_x_continuous(breaks = breaks) +
+  xlab("ROE") + ylab("Frequency") 
+```
+
+```{r}
+#| label: fig-hist-roe-group
+#| fig-cap: Histogram of ROE by size group
+Benchdata |>
+  ggplot(aes(roe)) +
   geom_histogram(binwidth = 0.02) +
+  facet_grid(size_group ~ .) +
   scale_x_continuous(breaks = breaks) +
-  xlab("ROE") + ylab("Frequency")
+  xlab("ROE") + ylab("Frequency") 
 ```
-
-```{r}
-#| label: fig-density-roe
-#| fig-cap: Density of ROE
-Benchdata |>
-  ggplot(aes(x = roe)) +
-  geom_density() +
-  scale_x_continuous(breaks = breaks) +
-  xlab("ROE") + ylab("Density")
-```
-
-```{r}
-#| label: fig-density-ret
-#| fig-cap: Density of returns
-Benchdata |>
-  ggplot(aes(x = return)) +
-  geom_density() +
-  scale_x_continuous(breaks = breaks) +
-  xlab("Annual Return") + ylab("Density")
-```
-
 
 ## Question 2 
 
