@@ -160,7 +160,7 @@ Benchdata |>
 
 ## Question 2 
 
-The **bid–ask spread* (also bid–offer spread) is the difference between the prices quoted for an immediate sale (ask/offer) and an immediate purchase (bid) for shares divided by the closing share price.
+The **bid–ask spread** (also bid–offer spread) is the difference between the prices quoted for an immediate sale (ask/offer) and an immediate purchase (bid) for shares divided by the closing share price.
 The graph below shows over the period from 2019 to 2021 the five-day moving average of the daily percentage bid-ask spread for two Australian listed companies: Woolworths and Metcash.  
 
 ```{r}
@@ -250,7 +250,7 @@ See attached article.
 
 # Question 4
 
-Telstra is Australia’s largest telecommunications company. 
+Telstra is Australia's largest telecommunications company. 
 Obtain [Telstra’s 2023 Annual Report](https://www.telstra.com.au/content/dam/tcom/about-us/investors/pdf-g/TEL-AR-2022-Spreads-FINAL.pdf).
 Compute the level of accruals for Telstra and answer the following questions:
 
