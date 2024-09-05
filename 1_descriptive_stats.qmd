@@ -19,7 +19,9 @@ format:
 
 The tutorial contains 6 questions all of which you should prepare for.
 
-Q1 involves a discussion of the primary objective of the financial economic business system: to pool and facilitate the allocation of resources/capital to the most productive/profitable use. The question will then begin to provide some insights into benchmarks/base rates for determining high and low profitability. This includes obtaining an understanding of (some) the properties of earnings and the use of  simple data analytics such as a histogram to visualize  and describe the distribution of business variables.      Q2 and Q3 introduces the concepts of information asymmetry to illustrate how this concept can explain a significant amount of economic resource allocation problems and associated outcome/solutions.  Q4 introduces a primary feature of financial reports that can reduce information asymmetry: accruals. Q5 and Q6 begin to introduce possible biases associated with accruals which we will be discussing in subsequent weeks. 
+Q1 involves a discussion of the primary objective of the financial economic business system: to pool and facilitate the allocation of resources/capital to the most productive/profitable use. The question will then begin to provide some insights into benchmarks/base rates for determining high and low profitability. This includes obtaining an understanding of (some) the properties of earnings and the use of  simple data analytics such as a histogram to visualize  and describe the distribution of business variables.
+Q2 and Q3 introduces the concepts of information asymmetry to illustrate how this concept can explain a significant amount of economic resource allocation problems and associated outcome/solutions.  Q4 introduces a primary feature of financial reports that can reduce information asymmetry: accruals.
+Q5 and Q6 begin to introduce possible biases associated with accruals which we will be discussing in subsequent weeks. 
 
 ## Question 1. 
 
