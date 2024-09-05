@@ -41,6 +41,7 @@ library(modelsummary)
 library(tinytable)
 library(DBI)
 library(dbplyr)
+library(duckdb)
 ```
 
 ```{r}
@@ -165,36 +166,43 @@ The graph below shows over the period from 2019 to 2021 the five-day moving aver
 
 ```{r}
 #| include: false
+#| eval: false
 Sys.setenv(PGHOST = "wrds-pgdata.wharton.upenn.edu",
            PGPORT = 9737L,
            PGDATABASE = "wrds",
            PGUSER = "iangow")
-```
 
-```{r}
 pg <- dbConnect(RPostgres::Postgres())
 wrds_ds2dsf <- tbl(pg, Id(table = "wrds_ds2dsf", schema = "tr_ds_equities"))
-```
 
-```{r}
 stocks <-
   tribble(
   ~infocode, ~company,
   258, "Metcash",
   27916, "Woolworths") |> 
   copy_inline(pg, df = _)
+
+price_data <-
+  wrds_ds2dsf |>
+  inner_join(stocks, by = "infocode") |>
+  filter(between(marketdate, "2019-11-21", "2021-12-16")) |>
+  select(company, infocode, marketdate, bid, ask, close) |>
+  collect() |>
+  write_csv("data/price_data.csv", na = "")
 ```
 
 ```{r}
+db <- dbConnect(duckdb())
+
+price_data <- tbl_file(db, "data/price_data.csv")
+
 spreads <-
-  wrds_ds2dsf |>
-  inner_join(stocks, by = "infocode") |>
+  price_data |>
   mutate(spread = (ask - bid) / close) |>
   group_by(company) |>
   window_order(marketdate) |>
   window_frame(-4, 0) |>
   mutate(spread = mean(spread, na.rm = TRUE)) |>
-  filter(between(marketdate, "2019-11-21", "2021-12-16")) |>
   select(company, marketdate, spread) |>
   collect()
 ```
