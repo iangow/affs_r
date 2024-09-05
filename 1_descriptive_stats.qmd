@@ -88,7 +88,7 @@ add_header <- function(x, cols) {
 #| label: tbl-ret-all
 #| tbl-cap: Descriptive statistics -- ROE and returns (%)
 datasummary((roe + return) 
-            ~ Mean + Max + P10 + P25 + P50 + P75 + P90 + Min + SD,
+            ~ Mean + Min + P10 + P25 + P50 + P75 + P90 + Max + SD,
             data = Benchdata, fmt = fmt_percent, digits = 0) |>
   add_header(cols = 4:8)
 ```
