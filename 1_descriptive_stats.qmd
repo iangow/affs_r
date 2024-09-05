@@ -39,6 +39,8 @@ See the variable `size_group` where the smallest stocks are classified as "Micro
 library(tidyverse)
 library(modelsummary)
 library(tinytable)
+library(DBI)
+library(dbplyr)
 ```
 
 ```{r}
@@ -158,10 +160,70 @@ Benchdata |>
 
 ## Question 2 
 
-The bid–ask spread (also bid–offer) is the percentage difference between the prices quoted for an immediate sale (ask/offer) and an immediate purchase (bid) for shares. 
+The **bid–ask spread* (also bid–offer spread) is the difference between the prices quoted for an immediate sale (ask/offer) and an immediate purchase (bid) for shares divided by the closing share price.
 The graph below shows over the period from 2019 to 2021 the five-day moving average of the daily percentage bid-ask spread for two Australian listed companies: Woolworths and Metcash.  
 
-The average bid-ask spread for Woolworths is 0.55% and for Metcash is 1.72%
+```{r}
+#| include: false
+Sys.setenv(PGHOST = "wrds-pgdata.wharton.upenn.edu",
+           PGPORT = 9737L,
+           PGDATABASE = "wrds",
+           PGUSER = "iangow")
+```
+
+```{r}
+pg <- dbConnect(RPostgres::Postgres())
+wrds_ds2dsf <- tbl(pg, Id(table = "wrds_ds2dsf", schema = "tr_ds_equities"))
+```
+
+```{r}
+stocks <-
+  tribble(
+  ~infocode, ~company,
+  258, "Metcash",
+  27916, "Woolworths") |> 
+  copy_inline(pg, df = _)
+```
+
+```{r}
+spreads <-
+  wrds_ds2dsf |>
+  inner_join(stocks, by = "infocode") |>
+  mutate(spread = (ask - bid) / close) |>
+  group_by(company) |>
+  window_order(marketdate) |>
+  window_frame(-4, 0) |>
+  mutate(spread = mean(spread, na.rm = TRUE)) |>
+  filter(between(marketdate, "2019-11-21", "2021-12-16")) |>
+  select(company, marketdate, spread) |>
+  collect()
+```
+
+```{r}
+#| label: fig-bid-ask
+#| fig-cap: Bid-ask spread (5-day moving average)
+spreads |>
+  ggplot(aes(x = marketdate, y = spread, group = company, color = company)) +
+  geom_line() +
+  theme(legend.position = "bottom")
+```
+
+```{r}
+#| include: false
+metcash_spread <-
+  spreads |> 
+  filter(company == "Metcash") |> 
+  summarize(mean(spread, na.rm = TRUE)) |> 
+  pull()
+
+woolies_spread <-
+  spreads |> 
+  filter(company == "Woolworths") |> 
+  summarize(mean(spread, na.rm = TRUE)) |> 
+  pull()
+```
+
+The average bid-ask spread for Woolworths is `r sprintf("%0.2f%%", woolies_spread * 100)` and for Metcash is `r sprintf("%0.2f%%", metcash_spread * 100)`.
 
 Using some of the background information to Woolworths and Metcash provided below explain why these bid-ask spreads are different?
 Are there any economic consequences from this difference?
