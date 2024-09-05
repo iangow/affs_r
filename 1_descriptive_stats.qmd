@@ -5,6 +5,7 @@ date: 2024-09-03
 date-format: "D MMMM YYYY"
 format: 
   html: default
+  docx: default
   pdf: 
     colorlinks: true
     geometry:
