@@ -1,0 +1,141 @@
+---
+title: "Tutorial 5: Stuff"
+author: Ian D. Gow
+date: 2024-09-12
+date-format: "D MMMM YYYY"
+format: 
+  html: default
+docx: default
+pdf: 
+  colorlinks: true
+geometry:
+  - left=2.5cm
+  - right=2.5cm
+papersize: a4
+mainfont: TeX Gyre Pagella
+mathfont: TeX Gyre Pagella Math
+---
+  
+  
+This tutorial focuses on the attribution of ROCE  between operating and financial drivers and the determination using ratio analysis of the drivers of ROIC operating performance.  Q1 is a very simple basic computation question, for self-learning,  to understand the basics of attributing the firm between financing and operations. The solutions are provided in this document. 
+
+There are then three main  questions that we will be discussing in workshops. Q2 and Q3 examine using current data the across-industry and across-time behaviour of the level and economic drivers of ROIC. These two questions thus provide the “base rates” or the benchmarks of the “norm”. In Q4 we then conduct an in-depth case-study analysis of the level and drivers of the performance of Breville Group Ltd. 
+
+Also include are some additional self-learning questions for outside the tutorial for which the solutions have already been provided. These question focus on the computation of the ratios. 
+
+# Question 1
+
+Corporation's return on net operating assets (RNOA) is 10% and its tax rate is 40%. 
+Its net operating assets ($4 million) are financed entirely by common shareholders' equity. 
+Management is considering its options to finance an expansion costing $2 million. 
+It expects return on net operating assets to remain unchanged.
+There are two alternatives to finance the expansion:
+
+1. Issue $1 million bonds with 12% coupon, and $1 million common stock.
+2. Issue $2 million bonds with 12% coupon.
+
+Required:
+
+a.	Determine net operating income after tax (NOPAT) and net income for each alternative.
+
+b.	Compute return on common shareholders' equity for each alternative (use ending equity).
+
+c.	Calculate the SPREAD and FLEV for each alternative.
+
+d.	Explain the difference in ROCE.
+
+The solution is attached at the end of these  tutorial questions.
+Please review and consider prior to class. 
+
+
+# Question 2 
+The Table below reports the median  ROIC by GICS Industry Sector for Large ASX listed firms across the period from 2000 to 2023.
+The sectors have been sorted from lowest to highest based on the Australia median.
+Note ROIC is based on before tax and interest (EBIT) to enable cross-country comparison. 
+Optional.  For students that have an interest. 
+The data (`Roicdata.csv`) and R-Code (`ROIC.R`) to compute the descriptive statistics are on the LMS.
+
+**Required**
+
+Explain why some sectors have high or low median ROIC.
+
+The other variables are just provided for your general information and interest. RoW stands for the rest-of-the world. The mean is both equal and value-weighted based on company size and thus is giving significant weight to the few very large companies in each sector. 
+
+# Question 3
+
+The figures and table below report the rates of mean reversion for ROIC, ATO (Asset Turnover), PM (Profit Margin) and Sales Growth for all the companies across the world across the period from 2011 to 2023.
+For each performance metric, such ROIC,  all companies were categorized into five portfolios from highest ROIC to lowest ROIC.
+The median ROIC across the next five years was then computed and graphed for each portfolio category.
+Basically we are examining what subsequently happens to high and low performing companies.
+Explain the following.
+Why do ROIC losses appear to revert faster than profits? Why do both profits and losses not appear to converge to an overall economy mean?
+What is the main difference in the rate of mean reversion between ATO and NPM and why?
+Check-out the mean reversion of sales growth. Wow. Lets chat. 
+ 
+# Question 4
+
+Analyse of the level and primary drivers of the performance of Breville Group Limited over the past 10 years from 2014 to 2023.
+The attached  excel spreadsheet Breville_Ratios provides all  relevant ratios.
+Please review the worksheets Ratios and Ratio_Presentation and analyse the level and drivers of Breville’s performance. 
+
+Background
+Breville Group Limited is listed on the ASX under the code BRG.
+ 
+The company generates the majority of its income from the Household Appliance Wholesaling in Australia industry.
+Specifically,  Breville Group Limited derives revenue from the design and development of innovative world class small electrical kitchen appliances and the effective marketing of these products across multiple geographies to drive growth in sales and profits. 
+The company operates across Australia, New Zealand, North America, Hong Kong and the United Kingdom, employs approximately 340 people and is administered by its head office in Alexandria, New South Wales.
+In addition, Breville has a product research and development centre located in Sydney, New South Wales. 
+"The Groups principal activities, and underlying strategy remains the design and development of innovative world class, small electrical kitchen appliances and the effective marketing of these products across the globe to drive sustainable growth in sales and profits"  2021 Annual Report
+Breville's portfolio of brands includes the following:
+
+ - Breville: A variety of kitchen products and small electrical appliances for the home.
+ - Kambrook: An affordable range of small electrical appliances for the home.
+ - Sage: Electrical kitchen goods marketed and distributed throughout the United Kingdom and Europe.
+ - PolyScience: Appliances for food temperature control and specialist cooking accessories. 
+
+Benchmarks
+Industry Benchmarks
+The industry classification of Breville based on the Global Industry Classification Standard (GICS) is as follows:  
+GICS Sector
+Consumer Discretionary
+GICS Industry Group
+Consumer Durables & Apparel
+GICS Industry
+Household Durables
+We will benchmark Breville against the large cap Consumer Discretionary sector. Download the benchmark metrics for this sector at this link
+https://www.charteredaccountantsanz.com/news-and-analysis/insights/research-and-insights/australian-and-new-zealand-financial-reporting-benchmarks-2022
+We will also benchmark Breville against two individual companies. 
+De'Longhi (BIT:DLG), an Italian appliance manufacturer focused on coffee appliances (which is one of Breville's biggest segments), and LG Electronics (KRX:066570), a Korea-based electronics manufacturer that is one of the biggest appliance companies in the world.
+
+# SOLUTION to Question ONE
+
+First alternative:
+NOPAT = \$6,000,000 * 10% = \$600,000
+Net income = $\$600,000 – [\$1,000,000*12\%](1-.40) = \$528,000$
+
+Second alternative:
+NOPAT = $6,000,000 * 10% = $600,000
+Net income = $600,000 – [$2,000,000*12%](1-.40) = $456,000
+
+b.	First alternative:
+	ROCE = $528,000 / $5,000,000 = 10.56%
+Second alternative:
+ROCE = $456,000 / $4,000,000 = 11.40%
+
+c.	First alternative:
+NFO-to-Equity = $1,000,000 / $5,000,000 = 0.2
+Second alternative:
+NFO-to-Equity = $2,000,000 / $4,000,000 = 0.5
+
+d.	This can be explained by attribution of ROCE  = RNOA + [FLEV  (RNOA – NBC)]
+	First, let’s compute return on assets (RNOA):
+	First alternative: $600,000 / $6,000,000 = 10%
+	Second alternative: $600,000  / $6,000,000 = 10%
+
+
+Second, notice that the interest rate is 12% on the debt (bonds).
+More importantly, the after-tax interest rate is 7.2% (12% x (1-0.40)), which is the NBC and is less than RNOA.
+Hence, the company earns more on its assets than it pays for debt on an after-tax basis.
+That is, it can successfully trade on the equity—use bondholders' funds to earn additional profits.
+Finally, since the second alternative uses more debt, as reflected in the FLEV ratio in c, the second alternative is probably preferred.
+The shareholders would take on additional risk with the second alternative, but the expected returns are greater as evidenced from computations in b.

@@ -1,0 +1,87 @@
+---
+title: "Performance over time"
+author: Ian D. Gow
+date: 2024-09-12
+date-format: "D MMMM YYYY"
+format: 
+  html: default
+  docx: default
+  pdf: 
+    colorlinks: true
+    geometry:
+      - left=2.5cm
+      - right=2.5cm
+    papersize: a4
+    mainfont: TeX Gyre Pagella
+    mathfont: TeX Gyre Pagella Math
+---
+
+
+```{r}
+#| message: false
+library(tidyverse)
+library(DBI)
+library(farr)
+```
+
+```{r}
+#| label: comp
+db <- dbConnect(duckdb::duckdb())
+
+funda <- load_parquet(db, schema = "comp", table = "funda")
+
+comp <-
+  funda %>%
+  filter(indfmt == 'INDL', datafmt == 'STD', 
+         popsrc == 'D', consol == 'C') %>%
+  mutate(mktcap = prcc_f * csho,
+         mb = if_else(ceq > 0, mktcap / ceq, NA),
+         pe = if_else(epspi > 0, prcc_f / epspi, NA)) %>%
+  filter(mktcap > 200, fyear >= 1963) %>%
+  select(gvkey, fyear, mktcap, mb, pe) %>%
+  collect()
+
+rs <- dbDisconnect(db)
+```
+
+```{r}
+#| label: get_quantiles
+#| cache: true
+get_quantiles <- function(df, var, quantiles) {
+  var_str <- substitute(var)
+  
+  df %>% 
+    group_by(fyear) %>% 
+    summarize(percentile = list(quantiles),
+              value = list(quantile({{ var }}, 
+                                    probs = quantiles, 
+                                    na.rm = TRUE)),
+              .groups = "drop") %>%
+    unnest(cols = c(percentile, value)) %>%
+    mutate(variable = as.character(var_str))
+}
+```
+
+\indexc{geom\_line()}
+```{r}
+quantiles <- c(0.10, 0.25, 0.50, 0.75, 0.90)
+
+comp %>%
+  get_quantiles(mb, quantiles) %>%
+  mutate(percentile = str_c("p", percentile * 100)) %>%
+  ggplot(aes(x = fyear, y = value, color = percentile)) +
+  geom_line() +
+  xlab("Market-to-book ratios") +
+  ylab("Fiscal year")
+```
+
+\indexc{geom\_line()}
+```{r}
+comp %>% 
+  get_quantiles(pe, quantiles) %>%
+  mutate(percentile = str_c("p", percentile * 100)) %>%
+  ggplot(aes(x = fyear, y = value, color = percentile)) +
+  geom_line() +
+  xlab("Price-earnings ratios") +
+  ylab("Fiscal year")
+```
