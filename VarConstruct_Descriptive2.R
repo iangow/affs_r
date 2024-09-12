@@ -2,11 +2,35 @@ library(tidyverse)
 library(modelsummary)
 library(fixest)
 library(duckdb)
+library(dbplyr)
+library(farr)
 
-ROEData2023_raw <- read_csv("data/FatData2023x.csv")
+db <- dbConnect(duckdb::duckdb())
+
+g_funda <- load_parquet(db, table = "g_funda", schema = "comp")
+g_company <- load_parquet(db, table = "g_company", schema = "comp")
+g_secd <- load_parquet(db, table = "g_secm", schema = "comp")
+
+prices <-
+  g_secm |>
+  mutate(datadate = floor_date(datadate) + months(1) - days(1)) |>
+  select(gvkey, datadate, prccm)
 
 ROEData2023 <-
-  ROEData2023_raw |>
+  g_funda |>
+  mutate(datadate = floor_date(datadate) + months(1) - days(1)) |>
+  filter(fic == "AUS") |>
+  inner_join(prices, by = join_by(gvkey, datadate)) |>
+  inner_join(
+    g_company |>
+      select(-conm, -costat, -fic, -loc), by = "gvkey") |>
+  select(gvkey, fyear, fyr, datadate, act, ap, artfs, at, capx,
+         ceq, ch, che, cogs, dfxa, dlc, dltt, do, dp, dpact, dvp,
+         ebit, ebitda, gdwl, ib, ibc, idit, intan, invt, ivao, ivncf,
+         lct, lt, mib, mibt, mii, oancf, oiadp, oibdp, pi, ppegt,
+         ppent, pstk, re, rect, rectr, revt, sale, txp, txt, xidoc,
+         xint, epsexcon, nicon, conm, au, auop, conml, ggroup,
+         gind, gsector, gsubind, sic, prccm, cshoi) |>
   mutate(across(c(dlc, dltt, pstk, che, ivao, ceq, mibt), \(x) coalesce(x, 0)),
          totaldebt = dlc + dltt + pstk,
          financialassets = che + ivao,
@@ -14,7 +38,7 @@ ROEData2023 <-
          invcapital = capital - che,
          groupequity = ceq + mibt) |>
   group_by(gvkey) |>
-  arrange(datadate) |>
+  window_order(datadate) |>
   mutate(across(c(at, ceq, sale, invt, capital, invcapital,
                   ap, capx, totaldebt, oiadp, rectr), lag,
                 .names = "l1_{.col}")) |>
@@ -39,7 +63,6 @@ ROEData2023 <-
         dayreceivable2 = if_else(rectr > 0 & sale>0, ((rectr+l1_rectr)/2)/(sale/365),NA),
         daysstock2 = if_else(invt> 0 &cogs > 0, ((invt+l1_invt)/2)/(cogs/365), NA),
         daysap = if_else(ap> 0 & cogs > 0, ((ap+l1_ap)/2)/(cogs/365), NA),
-
         np_margin = if_else(sale > 0, operating_profit/sale,NA),
         gp_margin = if_else(sale> 0 & cogs > 0, (sale-cogs)/sale,NA),
         ebitda_margin = if_else(sale> 0, oibdp/sale,NA),
@@ -62,7 +85,7 @@ ROEData2023 <-
         capx_sale=if_else(sale> 0 & capx >0, capx/sale,0)) |>
   # create lags of profitability variables
   group_by(gvkey) |>
-  arrange(datadate) |>
+  window_order(datadate) |>
   mutate(across(c(roic, salegr, gp_margin, np_margin, op_exp, ebit_margin),
                 lag, .names = "l1_{.col}"),
          l2_roic = lag(roic, 2)) |>
@@ -83,9 +106,9 @@ ROEData2023 <-
          accruals_cfo = abs(ibc - oancf) / abs(oancf),
          accruals_depr_cfo = abs(ibc + dp - oancf) / abs(oancf)) |>
   # create market-price variables.
-  # mutate(mktcap = end_prccd * (end_cshoc / 1000000),
-  #       mb = if_else(ceq > 0, (end_prccd * (end_cshoc / 1000000)) / ceq, NA),
-  #       pe = if_else(epsexcon >0, end_prccd / epsexcon, NA))
+  mutate(mktcap = prccm * (cshoi / 1000000),
+         mb = if_else(ceq > 0, (prccm * (cshoi / 1000000)) / ceq, NA),
+         pe = if_else(epsexcon > 0, prccm / epsexcon, NA)) |>
   # Getting subsample. Removing observation that do not meet criteria.
   #40203010 Asset Management & Custody Banks 40204010 Mortgage REITs 601010 Equity Real Estate  Investment Trusts  (REITs)
   filter(!(gsubind=="40203010" | gsubind=="40204010" | gind=="601010"| at < 0 ) |
@@ -98,9 +121,11 @@ ROEData2023 <-
          size_decile = ntile(l1_at, 10),
          large = if_else(size_decile > 8, 1, 0)) |>
   ungroup() |>
-  compute() |>
+  compute(name = "roe_data_2023", overwrite = TRUE) |>
   system_time()
 
+dbExecute(db, "COPY roe_data_2023 TO 'data/roe_data_2023.csv'")
+dbExecute(db, "COPY roe_data_2023 TO 'data/roe_data_2023.parquet'")
 
 ROESummary <-
   ROEData2023 |>
