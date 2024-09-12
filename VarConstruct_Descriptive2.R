@@ -110,7 +110,9 @@ ROEData2023 <-
          mb = if_else(ceq > 0, (prccm * (cshoi / 1000000)) / ceq, NA),
          pe = if_else(epsexcon > 0, prccm / epsexcon, NA)) |>
   # Getting subsample. Removing observation that do not meet criteria.
-  #40203010 Asset Management & Custody Banks 40204010 Mortgage REITs 601010 Equity Real Estate  Investment Trusts  (REITs)
+  # 40203010 Asset Management & Custody Banks
+  # 40204010 Mortgage REITs
+  # 601010 Equity Real Estate Investment Trusts (REITs)
   filter(!(gsubind=="40203010" | gsubind=="40204010" | gind=="601010"| at < 0 ) |
            is.na(gsubind) | is.na(gind)| is.na(at)) |>
   filter(fyear > 1999) |>
